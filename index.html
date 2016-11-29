@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Taisys IoV Portal</title>
+	<link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="css/animate.css" rel="stylesheet" />
+    <!-- Squad theme CSS -->
+    <link href="css/style.css" rel="stylesheet">
+	<link href="color/default.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css" />
+	<link rel="stylesheet" href="css/footable.core.min.css" type="text/css" /><!--處理table的RWD/sorting/filtering，參考網頁：https://github.com/bradvin/FooTable -->
+	<link rel="stylesheet" href="css/footable.standalone.min.css" type="text/css" /><!--處理table的RWD/sorting/filtering，參考網頁：https://github.com/bradvin/FooTable -->
+
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-custom">
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="load"></div>
+	</div>
+
+	<nav class="navbar navbar-custom navbar-fixed-top top-nav-collapse" role="navigation">
+		<div class="container">
+			<div class="navbar-header page-scroll">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+					<i class="fa fa-bars"></i>
+				</button>
+				<div style="padding-top:10px;"><h3 id="pageName" style="margin:0 0 0 0;color:#FFFFFF;">Taisys IoV Portal -- Device List</h3></div>
+			</div>
+				
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+				<ul id="main-menu" class="nav navbar-nav">
+				</ul>
+			</div>
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container -->
+	</nav>
+
+	<!-- Section: main -->
+    <section id="intro" class="intro">
+		<div class="row">
+			<a type="button" class="btn btn-primary" href="IOVDemo.apk" target="_blank" style="margin-bottom:10px;">Click here to download demo APP.</a>
+		</div>
+		<div class="row">
+            
+			<table id="tblResult" class="with-border footable" data-page-size="50" data-limit-navigation="5">
+				<thead>
+					<tr><th data-class="expand">First Registered Date</th><th>Last Registered Date</th><th>User Name</th><th>Device ID</th><th>Detail</th></tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td colspan="12" class="text-center">
+							<ul class="pagination pagination-centered">
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+    </section>
+	<!-- /Section: main -->
+
+
+
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 col-lg-12">
+					<div class="wow shake" data-wow-delay="0.4s">
+					<div class="page-scroll marginbot-30">
+						<a href="#intro" id="totop" class="btn btn-circle">
+							<i class="fa fa-angle-double-up animated"></i>
+						</a>
+					</div>
+					</div>
+					<p>&copy;Taisys Holding Co. Ltd. All rights reserved.</p>
+				</div>
+			</div>	
+		</div>
+	</footer>
+
+</body>
+</html>
+
+<!-- Core JavaScript Files -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.easing.min.js"></script>	
+<script src="js/jquery.scrollTo.js"></script>
+<script src="js/wow.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="js/custom.js"></script>
+
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery.blockUI.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/footable.all.min.js"></script><!--處理table的RWD/sorting/filtering，參考網頁：https://github.com/bradvin/FooTable -->
+
+<script>
+	$(function() {
+		getIoVDeviceList();
+
+		$('#tblResult').footable();
+
+	});
+
+</script>
+
+<script>
+	
+	function getIoVDeviceList(){
+		var sData = "";
+		var s = "";
+		var tmp = "";
+
+		getDataFromServer("ajaxGetIOVList.jsp", sData, "json", function(data){
+			if (!data.resultCode || !data.resultText){
+				msgBox("Unable to get Device List.");
+				return;
+			}else{
+				if (data.resultCode=="00000"){
+					s = "";
+					$.each( data.devices, function(i, r) {
+						s = "<tr>";
+						s += "<td>" + r.Create_Date + "</td>";
+						s += "<td>" + r.Update_Date + "</td>";
+						s += "<td>" + r.User_Name + "</td>";
+						s += "<td>" + r.UUID + "</td>";
+						s += "<td><a href='show_iov_device.html?uuid=" + r.UUID + "' target='_blank'>View Detail</a></td>";
+						s += "</tr>";
+						$('#tblResult tbody').append(s);
+					});	//$.each( data.orders, function(i, r) {
+					//$('#tblResult tbody').html(s);
+					$('#tblResult tbody').trigger('footable_redraw');
+					//s = $('#tblResult tbody tr:not(.footable-filtered)').length;
+				}else{
+					msgBox("Failed to get Device list:<br>" + data.resultText);
+				}
+			}
+
+		});	//getDataFromServer("xxx.jsp", sData, "json", function(data){
+	}	//function getIoVDeviceList(){
+
+</script>
+

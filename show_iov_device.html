@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Taisys IoV Portal</title>
+	<link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="css/animate.css" rel="stylesheet" />
+    <!-- Squad theme CSS -->
+    <link href="css/style.css" rel="stylesheet">
+	<link href="color/default.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css" />
+    <!--<link href="css/jquery.dynameter.css" rel="stylesheet">--><!-- Gauge plugin，請參考 http://www.jqueryscript.net/other/jQuery-Plugin-To-Generate-Animated-Dynamic-Gauges-dynameter.html -->
+	<style media="screen" type="text/css">
+		.gauge {
+			float: left;
+			margin: 10px 30px;
+		}
+	</style>
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-custom">
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="load"></div>
+	</div>
+
+	<nav class="navbar navbar-custom navbar-fixed-top top-nav-collapse" role="navigation">
+		<div class="container">
+			<div class="navbar-header page-scroll">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+					<i class="fa fa-bars"></i>
+				</button>
+				<div style="padding-top:10px;"><h3 id="pageName" style="margin:0 0 0 0;color:#FFFFFF;">Taisys IoV Portal -- Device Detail</h3></div>
+			</div>
+				
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+				<ul id="main-menu" class="nav navbar-nav">
+				</ul>
+			</div>
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container -->
+	</nav>
+
+	<!-- Section: main -->
+    <section id="intro" class="intro" style="padding-top:70px;">
+		<div class="row">
+            <div class="col-md-12">
+            	<div id="map_canvas" style="height:250px;width:100%;"></div>
+            </div>
+		</div>
+		<div class="row">
+            <div class="col-md-4">
+            	<div id="fuelMeterDiv" class="gauge"></div>
+        	</div>
+            <div class="col-md-4">
+            	<div id="temperatureMeterDiv" class="gauge"></div>
+        	</div>
+            <div class="col-md-4">
+            	<div style="margin-top:10px;text-align:right;">Last Update:&nbsp;<span id="spLastUpdate" name="spLastUpdate">N/A</span></div>
+            	<div><button type="button" id="btnStartTracking" name="btnStartTracking" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="doMQTTConnect();">Start Tracking</button></div>
+            	<div><button type="button" id="btnStopTracking" name="btnStopTracking" class="btn btn-primary" style="width:100%;margin-top:10px;display:none;" onclick="doStop();">Stop Tracking</button></div>
+            	<div><button type="button" id="btnDownloadNewIMSI" name="btnDownloadNewIMSI" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="dialogDownloadNewIMSI.dialog('open');">Download New IMSI</button></div>
+            	<div><button type="button" id="btnIMSISwitch" name="btnIMSISwitch" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="dialogIMSISwitch.dialog('open');">IMSI Switch</button></div>
+            	<div><button type="button" id="btnSendMessageToDevice" name="btnSendMessageToDevice" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="doSendMessageToDevice();">Send Message To Device</button></div>
+            	<div><input type="text" id="txtSendMessageToDevice" name="txtSendMessageToDevice" style="width:100%;margin-top:10px;" value="type the message you want to send to this device" /></div>
+
+				<div style="margin-top:30px;">Status:&nbsp;
+					<span id="spNotConnected" name="spNotConnected" style="color:#FF0000;">Not connected.</span>
+					<span id="spConnected" name="spConnected" style="color:#429F42;display:none;">connected.</span>
+				</div>
+        	</div>
+		</div>
+    </section>
+	<!-- /Section: main -->
+
+
+
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 col-lg-12">
+					<div class="wow shake" data-wow-delay="0.4s">
+					<div class="page-scroll marginbot-30">
+						<a href="#intro" id="totop" class="btn btn-circle">
+							<i class="fa fa-angle-double-up animated"></i>
+						</a>
+					</div>
+					</div>
+					<p>&copy;Taisys Holding Co. Ltd. All rights reserved.</p>
+				</div>
+			</div>	
+		</div>
+	</footer>
+
+	<div id="dlDownloadNewIMSI" title="Download New IMSI"><!--給Download New IMSI用的dialog-->
+		<p>Please select an Package.</p>
+		<form>
+			<fieldset>
+				<select id="slDownloadNewIMSI" name="slDownloadNewIMSI">
+					<option value="Netflix">Netflix</option>
+					<option value="Movie">Movie</option>
+					<option value="Music">Music</option>
+				</select>
+			</fieldset>
+		</form>
+	</div>
+
+	<div id="dlIMSISwitch" title="Select IMSI"><!--給IMSI switch用的dialog-->
+		<p>Please select an IMSI.</p>
+		<form>
+			<fieldset>
+				<select id="slIMSISwitch" name="slIMSISwitch">
+					<option value="1-Embedded">1-Embedded</option>
+					<option value="2-IoV-default">2-IoV-default</option>
+				</select>
+			</fieldset>
+		</form>
+	</div>
+</body>
+</html>
+
+<!-- Core JavaScript Files -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.easing.min.js"></script>	
+<script src="js/jquery.scrollTo.js"></script>
+<script src="js/wow.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="js/custom.js"></script>
+
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery.blockUI.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<!--<script type="text/javascript" src="js/jquery.dynameter.js"></script>--><!-- Gauge plugin，請參考 http://www.jqueryscript.net/other/jQuery-Plugin-To-Generate-Animated-Dynamic-Gauges-dynameter.html -->
+<script type="text/javascript" src="js/raphael.min.js"></script><!-- Gauge plugin，請參考 https://github.com/andyburton/Sonic-Gauge -->
+<script type="text/javascript" src="js/jquery.sonic-gauge.min.js"></script><!-- Gauge plugin，請參考 https://github.com/andyburton/Sonic-Gauge -->
+
+
+
+
+<script src="js/mqttws31.js"></script><!-- MQTT client，請參考 http://www.eclipse.org/paho/ -->
+
+<script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyC6DbiJtkddZJDzA1vOAB6ka_Pa6LBVecI"></script>
+
+<script>
+	$(function() {
+		initMap();
+		initMeter();
+		getIoVDeviceDetail();
+
+		dialogDownloadNewIMSI = $( "#dlDownloadNewIMSI" ).dialog({	//初始化Download New IMSI dialog
+			autoOpen: false,
+			height: 300,
+			width: 500,
+			modal: true,
+			buttons: {
+				"Download this package to device": doDownloadNewIMSI,
+				Cancel: function() {
+					dialogDownloadNewIMSI.dialog("close");
+				}
+			},
+			close: function() {
+			}
+		});	////初始化Download New IMSI dialog
+
+		dialogIMSISwitch = $( "#dlIMSISwitch" ).dialog({	//初始化IMSI switch dialog
+			autoOpen: false,
+			height: 300,
+			width: 350,
+			modal: true,
+			buttons: {
+				"Switch to this IMSI": doIMSISwitch,
+				Cancel: function() {
+					dialogIMSISwitch.dialog("close");
+				}
+			},
+			close: function() {
+			}
+		});	////初始化IMSI switch dialog
+	});	//$(function() {
+
+</script>
+
+<script>
+	var clientPosition = null;
+	var map = null;
+	function initMap(){	//初始化地圖
+		clientPosition = new google.maps.LatLng('25.0517202', '121.5590735');	//預設為南京東路
+		var options = { 
+			zoom : 14,
+			center : clientPosition,
+			mapTypeId : google.maps.MapTypeId.ROADMAP
+		};
+		var $content = $("#map_canvas");
+		map = new google.maps.Map ($content[0], options);
+
+	}	//function initMap(){	//初始化地圖
+	
+	var uuid = "";
+	function getIoVDeviceDetail(){
+		uuid = getParameterByName("uuid");
+		if (beEmpty(uuid)){
+			msgBox("Unable to get device ID!");
+			return;
+		}
+		//開始連到MQTT Server
+		doMQTTConnect();
+	}	//function getIoVDeviceDetail(){
+
+	const TOPIC = "com/taisys/iot/";
+	
+	var client = null;
+	
+	var lat = "";
+	var lon = "";
+	var fuel = "";
+	var temperature = "";
+
+	function doMQTTConnect(){
+		client = new Paho.MQTT.Client("test.mosquitto.org", 8080, "TaisysIoVServer" + Math.floor((Math.random() * 10000000000) + 1));
+		client.onConnectionLost = onConnectionLost;
+		client.onMessageArrived = onMessageArrived;
+		client.connect({timeout:10, onSuccess:onConnect, onFailure:onConnectFail});
+	};
+
+	function onConnect() {
+		// Once a connection has been made, make a subscription and send a message.
+		console.log("onConnect");
+		client.subscribe(TOPIC + uuid);
+		$('#btnStartTracking').hide();
+		$('#btnStopTracking').show();
+		$('#spNotConnected').hide();
+		$('#spConnected').show();
+	};
+	function onConnectFail(message) {
+		msgBox("Failed to connect to MQTT server: " + message.errorMessage);
+		console.log("onConnectFail:"+message.errorMessage);
+		$('#btnStartTracking').show();
+		$('#btnStopTracking').hide();
+		$('#spNotConnected').show();
+		$('#spConnected').hide();
+	};
+	function onConnectionLost(responseObject) {
+		if (responseObject.errorCode !== 0){
+			msgBox("Lost connection to server");
+			console.log("onConnectionLost:"+responseObject.errorMessage);
+			$('#btnStartTracking').show();
+			$('#btnStopTracking').hide();
+			$('#spNotConnected').show();
+			$('#spConnected').hide();
+		}
+	};
+	function onMessageArrived(message) {
+		console.log("onMessageArrived:"+message.payloadString);
+		var payload = message.payloadString;
+		if (payload.indexOf("ServerMessage")>0){	//這是從server送過來的訊息
+			return;
+		}
+		var obj = JSON.parse(payload);
+		lat = obj.lat;
+		lon = obj.lon;
+		fuel = obj.fuel;
+		temperature = obj.temperature;
+		if (beEmpty(lat) || beEmpty(lon)){
+			msgBox("No location info in device data.");
+			return;
+		}
+		if (beEmpty(fuel)){
+			fuel = "0";
+		}
+		if (beEmpty(temperature)){
+			temperature = "0";
+		}
+		updateDeviceInfo();
+	};	//function onMessageArrived(message) {
+
+	// 發佈訊息
+	function publish_message(msg) {
+		var obj = new Object();
+		obj.ServerMessage = msg;
+		var payload= JSON.stringify(obj);
+	    var message = new Paho.MQTT.Message(payload);
+	    message.destinationName = TOPIC + uuid;
+	    client.send(message);
+	}
+
+	function doStop() {
+		client.disconnect();
+		$('#btnStartTracking').show();
+		$('#btnStopTracking').hide();
+		$('#spNotConnected').show();
+		$('#spConnected').hide();
+	}
+
+	function updateDeviceInfo(){	//依據從MQTT收到的資訊，更新設備狀態
+		clientPosition = new google.maps.LatLng(lat,lon);
+		
+		var marker1 = new google.maps.Marker ( 
+		{ 
+			map : map, 
+			animation : google.maps.Animation.DROP,
+			'title': getCurrentTime(),
+			position : clientPosition,
+			icon: 'images/36.png'
+		});  
+
+		map.panTo(clientPosition);
+		var value = parseInt(fuel);
+		$myFuelMeter.SonicGauge ('val', value);
+		value = parseInt(temperature);
+		$myTemperatureMeter.SonicGauge ('val', value);
+		
+		$('#spLastUpdate').html(getCurrentDate() + "&nbsp;" + getCurrentTime());
+
+	}	//function updateDeviceInfo(){	//依據從MQTT收到的資訊，更新設備狀態
+	
+	var $myTemperatureMeter, $myFuelMeter;
+
+	function initMeter(){
+		$myFuelMeter = $('#fuelMeterDiv').SonicGauge ({
+			label	: 'Fuel (%)',
+			start	: {angle: -225, num: 0},
+			end		: {angle: 45, num: 100},
+			markers	: [
+				{
+					gap: 20,
+					line: {"width": 20, "stroke": "none", "fill": "#eeeeee"},
+					text: {"space": 22, "text-anchor": "middle", "fill": "#333333", "font-size": 18}
+				},{
+					gap: 10, 
+					line: {"width": 12, "stroke": "none", "fill": "#aaaaaa"},
+					text: {"space": 18, "text-anchor": "middle", "fill": "#333333", "font-size": 12}
+				},{
+					gap: 5, 
+					line: {"width": 8, "stroke": "none", "fill": "#999999"}
+				}
+			],
+			animation_speed : 200
+		});
+
+		$myTemperatureMeter = $('#temperatureMeterDiv').SonicGauge ({
+			label	: 'Temperature (C)',
+			start	: {angle: -225, num: -40},
+			end		: {angle: 45, num: 80},
+			markers	: [
+				{
+					gap: 20,
+					line: {"width": 20, "stroke": "none", "fill": "#eeeeee"},
+					text: {"space": 22, "text-anchor": "middle", "fill": "#333333", "font-size": 18}
+				},{
+					gap: 10, 
+					line: {"width": 12, "stroke": "none", "fill": "#aaaaaa"},
+					text: {"space": 18, "text-anchor": "middle", "fill": "#333333", "font-size": 12}
+				},{
+					gap: 5, 
+					line: {"width": 8, "stroke": "none", "fill": "#999999"}
+				}
+			],
+			animation_speed : 200,
+			style	: {
+				"outline"	: {"fill": "r#f46a3a-#890b0b", "stroke": "#590303", "stroke-width": 4},
+				"center"	: {"fill": "#ae1e1e", "diameter": 8, "stroke": "#590303", "stroke-width": 1},
+				"needle"	: {"fill": "#fbdbdb"},
+				"label"		: {"font-size": 14}
+			}
+		});
+
+		//$('#fuelMeterDiv').SonicGauge ('draw');
+	}
+
+	function doSendMessageToDevice(){
+		var s = $('#txtSendMessageToDevice').val();
+		if (beEmpty(s)){
+			msgBox("Please enter message in the box below!");
+			return;
+		}
+		
+		publish_message(s);
+		msgBox("Message has been sent to device!");
+	}
+
+	function doDownloadNewIMSI(){
+		dialogDownloadNewIMSI.dialog("close");
+		var s = $('#slDownloadNewIMSI').val();
+		console.log("Download New IMSI: " + s);
+		publish_message(s + " IMSI has been written to eSIM");
+		msgBox(s + " IMSI has been written to eSIM");
+		var l = $('#slIMSISwitch').children('option').length;
+		l ++;
+		var newValue = l + "-" + s;
+		$('#slIMSISwitch').append($('<option>', {
+			value: newValue,
+			text: newValue
+		}));
+	}
+
+	function doIMSISwitch(){
+		dialogIMSISwitch.dialog("close");
+		var s = $('#slIMSISwitch').val();
+		console.log("Switch to IMSI: " + s);
+		publish_message("Switch to IMSI: " + s);
+		msgBox("Switch to IMSI: " + s);
+	}
+</script>
+
