@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Taisys IoV Portal</title>
+	<link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="css/animate.css" rel="stylesheet" />
+    <!-- Squad theme CSS -->
+    <link href="css/style.css" rel="stylesheet">
+	<link href="color/default.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css" />
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-custom">
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="load"></div>
+	</div>
+
+	<nav class="navbar navbar-custom navbar-fixed-top top-nav-collapse" role="navigation">
+		<div class="container">
+			<div class="navbar-header page-scroll">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+					<i class="fa fa-bars"></i>
+				</button>
+				<div style="padding-top:10px;"><h3 id="pageName" style="margin:0 0 0 0;color:#FFFFFF;">Taisys IoV Portal -- Manage GeoFence</h3></div>
+			</div>
+				
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+				<ul id="main-menu" class="nav navbar-nav">
+				</ul>
+			</div>
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container -->
+	</nav>
+
+	<!-- Section: main -->
+    <section id="intro" class="intro" style="padding-top:70px;">
+		<div class="row">
+            <div class="col-md-12">
+            	<div id="map_canvas" style="height:250px;width:100%;"></div>
+            </div>
+		</div>
+		<div class="row">
+            <div class="col-md-4">
+            	<div id="fuelMeterDiv" class="gauge"></div>
+        	</div>
+            <div class="col-md-4">
+            	<div id="temperatureMeterDiv" class="gauge"></div>
+        	</div>
+            <div class="col-md-4">
+            	<div style="margin-top:10px;text-align:right;">Last Update:&nbsp;<span id="spLastUpdate" name="spLastUpdate">N/A</span></div>
+            	<div><button type="button" id="btnStartTracking" name="btnStartTracking" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="doMQTTConnect();">Start Tracking</button></div>
+            	<div><button type="button" id="btnStopTracking" name="btnStopTracking" class="btn btn-primary" style="width:100%;margin-top:10px;display:none;" onclick="doStop();">Stop Tracking</button></div>
+            	<div><button type="button" id="btnDownloadNewIMSI" name="btnDownloadNewIMSI" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="dialogDownloadNewIMSI.dialog('open');">Download New IMSI</button></div>
+            	<div><button type="button" id="btnIMSISwitch" name="btnIMSISwitch" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="dialogIMSISwitch.dialog('open');">IMSI Switch</button></div>
+            	<div><button type="button" id="btnSendMessageToDevice" name="btnSendMessageToDevice" class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="doSendMessageToDevice();">Send Message To Device</button></div>
+            	<div><input type="text" id="txtSendMessageToDevice" name="txtSendMessageToDevice" style="width:100%;margin-top:10px;" value="type the message you want to send to this device" /></div>
+
+				<div style="margin-top:30px;">Status:&nbsp;
+					<span id="spNotConnected" name="spNotConnected" style="color:#FF0000;">Not connected.</span>
+					<span id="spConnected" name="spConnected" style="color:#429F42;display:none;">connected.</span>
+				</div>
+        	</div>
+		</div>
+    </section>
+	<!-- /Section: main -->
+
+
+
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 col-lg-12">
+					<div class="wow shake" data-wow-delay="0.4s">
+					<div class="page-scroll marginbot-30">
+						<a href="#intro" id="totop" class="btn btn-circle">
+							<i class="fa fa-angle-double-up animated"></i>
+						</a>
+					</div>
+					</div>
+					<p>&copy;Taisys Holding Co. Ltd. All rights reserved.</p>
+				</div>
+			</div>	
+		</div>
+	</footer>
+</body>
+</html>
+
+<!-- Core JavaScript Files -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.easing.min.js"></script>	
+<script src="js/jquery.scrollTo.js"></script>
+<script src="js/wow.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="js/custom.js"></script>
+
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery.blockUI.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+
+<script src="js/mqttws31.js"></script><!-- MQTT client，請參考 http://www.eclipse.org/paho/ -->
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6DbiJtkddZJDzA1vOAB6ka_Pa6LBVecI&libraries=drawing"></script>
+
+<script>
+	$(function() {
+		initMap();
+		//google.maps.event.addDomListener(window, 'load', initialize);
+		getIoVDeviceDetail();
+	});	//$(function() {
+
+</script>
+
+<script>
+	var clientPosition = null;
+	var map = null;
+	function initMap(){	//初始化地圖
+		map = new google.maps.Map(document.getElementById('map_canvas'), {
+			center: {lat: -34.397, lng: 150.644},
+			zoom: 8
+		});
+		
+		var drawingManager = new google.maps.drawing.DrawingManager({
+			drawingMode: google.maps.drawing.OverlayType.MARKER,
+			drawingControl: true,
+			drawingControlOptions: {
+				position: google.maps.ControlPosition.TOP_CENTER,
+				drawingModes: [
+					google.maps.drawing.OverlayType.MARKER,
+					google.maps.drawing.OverlayType.CIRCLE,
+					google.maps.drawing.OverlayType.POLYGON,
+					google.maps.drawing.OverlayType.POLYLINE,
+					google.maps.drawing.OverlayType.RECTANGLE
+				]
+			},
+			markerOptions: {icon: 'images/pin_green.png'},
+			circleOptions: {
+				fillColor: '#ffff00',
+				fillOpacity: 1,
+				strokeWeight: 5,
+				clickable: false,
+				editable: true,
+				zIndex: 1
+			}
+		});
+
+		google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
+			alert("hi");
+			var coordinates = (polyline.getPath().getArray());
+			alert(coordinates[0]['A']);
+			alert(coordinates);
+			// console.log(coordinates);
+		});
+
+		drawingManager.setMap(map);
+	}	//function initMap(){	//初始化地圖
+	
+	var uuid = "";
+	function getIoVDeviceDetail(){
+		uuid = getParameterByName("uuid");
+		if (beEmpty(uuid)){
+			msgBox("Unable to get device ID!");
+			return;
+		}
+		//開始連到MQTT Server
+		doMQTTConnect();
+	}	//function getIoVDeviceDetail(){
+
+	const TOPIC = "com/taisys/iot/";
+	
+	var client = null;
+	
+	var lat = "";
+	var lon = "";
+	var fuel = "";
+	var temperature = "";
+
+	function doMQTTConnect(){
+		client = new Paho.MQTT.Client("test.mosquitto.org", 8080, "TaisysIoVServer" + Math.floor((Math.random() * 10000000000) + 1));
+		client.onConnectionLost = onConnectionLost;
+		client.onMessageArrived = onMessageArrived;
+		client.connect({timeout:10, onSuccess:onConnect, onFailure:onConnectFail});
+	};
+
+	function onConnect() {
+		// Once a connection has been made, make a subscription and send a message.
+		console.log("onConnect");
+		client.subscribe(TOPIC + uuid);
+		$('#btnStartTracking').hide();
+		$('#btnStopTracking').show();
+		$('#spNotConnected').hide();
+		$('#spConnected').show();
+	};
+	function onConnectFail(message) {
+		msgBox("Failed to connect to MQTT server: " + message.errorMessage);
+		console.log("onConnectFail:"+message.errorMessage);
+		$('#btnStartTracking').show();
+		$('#btnStopTracking').hide();
+		$('#spNotConnected').show();
+		$('#spConnected').hide();
+	};
+	function onConnectionLost(responseObject) {
+		if (responseObject.errorCode !== 0){
+			msgBox("Lost connection to server");
+			console.log("onConnectionLost:"+responseObject.errorMessage);
+			$('#btnStartTracking').show();
+			$('#btnStopTracking').hide();
+			$('#spNotConnected').show();
+			$('#spConnected').hide();
+		}
+	};
+	function onMessageArrived(message) {
+		console.log("onMessageArrived:"+message.payloadString);
+		var payload = message.payloadString;
+		if (payload.indexOf("ServerMessage")>0){	//這是從server送過來的訊息
+			return;
+		}
+		var obj = JSON.parse(payload);
+		lat = obj.lat;
+		lon = obj.lon;
+		fuel = obj.fuel;
+		temperature = obj.temperature;
+		if (beEmpty(lat) || beEmpty(lon)){
+			msgBox("No location info in device data.");
+			return;
+		}
+		if (beEmpty(fuel)){
+			fuel = "0";
+		}
+		if (beEmpty(temperature)){
+			temperature = "0";
+		}
+		updateDeviceInfo();
+	};	//function onMessageArrived(message) {
+
+	// 發佈訊息
+	function publish_message(msg) {
+		var obj = new Object();
+		obj.ServerMessage = msg;
+		var payload= JSON.stringify(obj);
+	    var message = new Paho.MQTT.Message(payload);
+	    message.destinationName = TOPIC + uuid;
+	    client.send(message);
+	}
+
+	function doStop() {
+		client.disconnect();
+		$('#btnStartTracking').show();
+		$('#btnStopTracking').hide();
+		$('#spNotConnected').show();
+		$('#spConnected').hide();
+	}
+
+	function doSendMessageToDevice(){
+		var s = $('#txtSendMessageToDevice').val();
+		if (beEmpty(s)){
+			msgBox("Please enter message in the box below!");
+			return;
+		}
+		
+		publish_message(s);
+		msgBox("Message has been sent to device!");
+	}
+
+</script>
+
