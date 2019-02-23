@@ -134,7 +134,7 @@ public String getDateTimeNow(String sDateFormat){
 	*************************************/
 	String s;
 	SimpleDateFormat nowdate = new java.text.SimpleDateFormat(sDateFormat);
-	nowdate.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+	//nowdate.setTimeZone(TimeZone.getTimeZone("GMT+8"));
 	s = nowdate.format(new java.util.Date());
 	return s;
 }	//public String getDateTimeNow(String sDateFormat){

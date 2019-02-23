@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>IMSI Switch</title>
+	<link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="css/animate.css" rel="stylesheet" />
+    <!-- Squad theme CSS -->
+    <link href="css/style.css" rel="stylesheet">
+	<link href="color/default.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css" />
+	<link rel="stylesheet" href="css/footable.core.min.css" type="text/css" /><!--處理table的RWD/sorting/filtering，參考網頁：https://github.com/bradvin/FooTable -->
+	<link rel="stylesheet" href="css/footable.standalone.min.css" type="text/css" /><!--處理table的RWD/sorting/filtering，參考網頁：https://github.com/bradvin/FooTable -->
+
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-custom">
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="load"></div>
+	</div>
+
+	<nav class="navbar navbar-custom navbar-fixed-top top-nav-collapse" role="navigation">
+		<div class="container">
+			<div class="navbar-header page-scroll">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+					<i class="fa fa-bars"></i>
+				</button>
+				<div style="padding-top:10px;"><h3 id="pageName" style="margin:0 0 0 0;color:#FFFFFF;">IMSI Switch</h3></div>
+			</div>
+				
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+				<ul id="main-menu" class="nav navbar-nav">
+				</ul>
+			</div>
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container -->
+	</nav>
+
+	<!-- Section: main -->
+    <section id="intro" class="intro">
+		<div class="row">
+			<table>
+				<tr>
+					<td style="padding: 15px;"><label>Master ID: </label></td>
+					<td style="padding: 15px;"><div><input type="text" id="txtMasterId" name="txtMasterId" maxlength="20" size="30" value="" /></div></td>
+					<td style="padding: 15px;"><div><button type="button" id="btnCheckStatus" name="btnCheckStatus" class="btn btn-primary" onclick="doCheckStatus();">Check status</button></div></td>
+				</tr>
+			</table>
+		</div>
+		<div class="row">
+			<table>
+				<tr>
+					<td style="padding: 15px;"><label>Action: </label></td>
+					<td style="padding: 15px;"><div>
+						<select id="selAction" name="selAction">
+							<option value="r">Reset</option>
+							<option value="s">Switch</option>
+							<option value="sr">Switch then reset</option>
+						</select>
+					</div></td>
+					<td style="padding: 15px;"><div><button type="button" id="btnAction" name="btnAction" class="btn btn-primary" onclick="doAction();">Go</button></div></td>
+				</tr>
+			</table>
+		</div>
+		<div class="row">
+			<table>
+				<tr>
+					<td style="padding: 15px;"><label>Last update date: </label></td>
+					<td style="padding: 15px;"><label id="lbUpdateDate" name="lbUpdateDate"></label></td>
+				</tr>
+			</table>
+		</div>
+		<div class="row">
+            
+			<table id="tblResult" class="with-border footable" data-page-size="50" data-limit-navigation="5">
+				<thead>
+					<tr><th data-class="expand">Slot</th><th>IMSI</th><th>Status</th></tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td colspan="12" class="text-center">
+							<ul class="pagination pagination-centered">
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+
+		<div class="row" style="margin-top:20px;">
+			<label>Last 10 jobs: </label>
+		</div>
+		<div class="row">
+            
+			<table id="tblJob" class="with-border footable" data-page-size="50" data-limit-navigation="5">
+				<thead>
+					<tr><th data-class="expand">Create Date</th><th>Update Date</th><th>Job Command</th><th>Status</th></tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td colspan="12" class="text-center">
+							<ul class="pagination pagination-centered">
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+    </section>
+	<!-- /Section: main -->
+
+
+
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 col-lg-12">
+					<div class="wow shake" data-wow-delay="0.4s">
+					<div class="page-scroll marginbot-30">
+						<a href="#intro" id="totop" class="btn btn-circle">
+							<i class="fa fa-angle-double-up animated"></i>
+						</a>
+					</div>
+					</div>
+					<p>&copy;Taisys Holding Co. Ltd. All rights reserved.</p>
+				</div>
+			</div>	
+		</div>
+	</footer>
+
+</body>
+</html>
+
+<!-- Core JavaScript Files -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.easing.min.js"></script>	
+<script src="js/jquery.scrollTo.js"></script>
+<script src="js/wow.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="js/custom.js"></script>
+
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery.blockUI.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/footable.all.min.js"></script><!--處理table的RWD/sorting/filtering，參考網頁：https://github.com/bradvin/FooTable -->
+
+<script>
+	$(function() {
+		$('#tblResult').footable();
+		$('#tblJob').footable();
+
+	});
+
+</script>
+
+<script>
+	
+	function doCheckStatus(){
+		var sData = "";
+		var s = "";
+		var tmp = "";
+		var masterId = $("#txtMasterId").val();
+		if (beEmpty(masterId)){
+			msgBox("Please enter Master ID!");
+			return;
+		}
+
+		$("#lbUpdateDate").text("");
+		//$('#tblResult').data('footable').reset();
+		$('#tblResult tbody').empty();
+		$('#tblResult tbody').trigger('footable_redraw');
+		$('#tblJob tbody').empty();
+		$('#tblJob tbody').trigger('footable_redraw');
+
+		sData = "masterId=" + masterId;
+		getDataFromServer("ajaxGetDeviceStatus.jsp", sData, "json", function(data){
+			if (!data.resultCode || !data.resultText){
+				msgBox("Unable to get IMSI status.");
+				return;
+			}else{
+				if (data.resultCode=="00000"){
+					tmp = data.Update_Date;
+					if (notEmpty(tmp)){
+						$("#lbUpdateDate").text(tmp);
+					}
+					s = "";
+					$.each( data.imsis, function(i, r) {
+						s = "<tr>";
+						s += "<td>" + r.Slot + "</td>";
+						s += "<td>" + r.IMSI + "</td>";
+						if (notEmpty(r.Status) && r.Status=="Active"){
+							s += "<td><img src='images/check32.jpg'></td>";
+						}else{
+							s += "<td></td>";
+						}
+						s += "</tr>";
+						$('#tblResult tbody').append(s);
+					});	//$.each( data.orders, function(i, r) {
+					//$('#tblResult tbody').html(s);
+					$('#tblResult tbody').trigger('footable_redraw');
+					//s = $('#tblResult tbody tr:not(.footable-filtered)').length;
+
+					s = "";
+					$.each( data.messages, function(i, r) {
+						s = "<tr>";
+						s += "<td>" + r.Create_Date + "</td>";
+						s += "<td>" + r.Update_Date + "</td>";
+						s += "<td>" + r.Message + "</td>";
+						s += "<td>" + r.Status + "</td>";
+						s += "</tr>";
+						$('#tblJob tbody').append(s);
+					});	//$.each( data.orders, function(i, r) {
+					//$('#tblResult tbody').html(s);
+					$('#tblJob tbody').trigger('footable_redraw');
+					//s = $('#tblResult tbody tr:not(.footable-filtered)').length;
+				}else{
+					msgBox("Failed to get IMSI status:<br>" + data.resultText);
+				}
+			}
+
+		});	//getDataFromServer("xxx.jsp", sData, "json", function(data){
+	}	//function doCheckStatus(){
+
+	function doAction(){
+		var sData = "";
+		var s = "";
+		var tmp = "";
+		var masterId = $("#txtMasterId").val();
+		if (beEmpty(masterId)){
+			msgBox("Please enter Master ID!");
+			return;
+		}
+		var myAction = $("#selAction").val();
+		if (beEmpty(myAction)){
+			msgBox("Please select an action!");
+			return;
+		}
+
+		sData = "masterId=" + masterId + "&action=" + myAction;
+		getDataFromServer("ajaxAddNewJob.jsp", sData, "json", function(data){
+			if (!data.resultCode || !data.resultText){
+				msgBox("Unable to get process result.");
+				return;
+			}else{
+				if (data.resultCode=="00000"){
+					msgBox("Your job has beed added to job queue!");
+					doCheckStatus();
+				}else{
+					msgBox("Failed to add your job:<br>" + data.resultText);
+				}
+			}
+
+		});	//getDataFromServer("xxx.jsp", sData, "json", function(data){
+	}	//function doAction(){
+
+</script>
+
