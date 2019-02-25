@@ -33,7 +33,7 @@ String sOTAServerUrl = "http://sms.gslssd.com/smsChannel/infinite/sendMessage";
 String sMessage		= nullToString(request.getParameter("message"), "");		//發送訊息內容
 String sRecipient	= nullToString(request.getParameter("msisdn"), "");		//發送訊息內容
 
-writeLog("info", "Send OTA: " + sMessage);
+writeLog("info", "Send OTA, message= " + sMessage + ", MSISDN=" + sRecipient);
 
 if (beEmpty(sMessage) || beEmpty(sRecipient)){
 	obj.put("resultCode", gcResultCodeParametersNotEnough);

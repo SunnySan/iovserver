@@ -145,6 +145,8 @@ sSQL += " AND Status='Init'";
 sSQL += " ORDER BY id";
 sSQL += " LIMIT 1";
 
+//writeLog("debug", "SQL= " + sSQL + "\n");
+
 ht = getDBData(sSQL, sSource);
 
 sResultCode = ht.get("ResultCode").toString();
