@@ -10,18 +10,11 @@
 
 <%
 /***************輸入範例********************************************************
-所有資料
-http://127.0.0.1:8080/CHT/ajaxGetPaymentOrderList.jsp
-
-單一資料
-http://127.0.0.1:8080/CHT/ajaxGetPaymentOrderList.jsp?Payment_Order_ID=TX15011901DA55595D5898AD
+https://cms.gslssd.com/iovserver/ajaxGetDeviceStatus.jsp?masterId=12345678901234567891
 *******************************************************************************/
 
 /***************輸出範例********************************************************
-所有資料
-{"resultCode":"00000","orders":[{"Create_Date":"2015-01-19 23:08","Update_Date_CS":null,"Last_Name":"hung","Arrive_Date":null,"Update_Date_CHT":null,"PaymentStatus":"Pay Success","Nationality":"Antarctica","Subscriber_ID":"14082511441646962E96","Product_E_Name":"testCHTnameLengthabcdefghijklmno","Queen_MSISDN":"886921139327","SendEmail":"N","Email":"gffjh@ggkbv.com","Product_SC_Name":"中华001","Update_User_ID_CHT":null,"Gender":"Female","First_Name":"popyyyo","Payment_Order_ID":"TX1501192C3162E03BE67313","Update_User_ID_CS":null,"Product_ID":"CHT001","Product_TC_Name":"中華001","MSISDN":"886910543001","DownloadStatus":"Receipt"},{"Create_Date":"2015-01-19 23:03","Update_Date_CS":null,"Last_Name":"hung","Arrive_Date":null,"Update_Date_CHT":null,"PaymentStatus":"Pay Success","Nationality":"Antarctica","Subscriber_ID":"14082511441646962E96","Product_E_Name":"testCHTnameLengthabcdefghijklmno","Queen_MSISDN":"886921139327","SendEmail":"N","Email":"gffjh@ggkbv.com","Product_SC_Name":"中华001","Update_User_ID_CHT":null,"Gender":"Female","First_Name":"popyyyo","Payment_Order_ID":"TX15011901DA55595D5898AD","Update_User_ID_CS":null,"Product_ID":"CHT001","Product_TC_Name":"中華001","MSISDN":"886910543000","DownloadStatus":"Receipt"}],"resultText":"Success"}
-單一資料
-{"resultCode":"00000","orders":[{"Create_Date":"2015-01-19 23:03","Update_Date_CS":null,"Last_Name":"hung","Arrive_Date":null,"Update_Date_CHT":null,"PaymentStatus":"Pay Success","Nationality":"Antarctica","Subscriber_ID":"14082511441646962E96","Product_E_Name":"testCHTnameLengthabcdefghijklmno","Queen_MSISDN":"886921139327","SendEmail":"N","Email":"gffjh@ggkbv.com","Product_SC_Name":"中华001","Update_User_ID_CHT":null,"Gender":"Female","First_Name":"popyyyo","Payment_Order_ID":"TX15011901DA55595D5898AD","Update_User_ID_CS":null,"Product_ID":"CHT001","Product_TC_Name":"中華001","MSISDN":"886910543000","DownloadStatus":"Receipt"}],"resultText":"Success"}
+{"resultText":"Success","Update_Date":"2019-02-23 16:01:22","imsis":[{"Status":"","IMSI":"1000000000000001","Slot":"0"},{"Status":"Active","IMSI":"1000000000000002","Slot":"1"}],"resultCode":"00000","messages":[{"Status":"Sent","Update_Date":"2019-02-23 16:01:22","Message":"AABBDDA6000001010100","Create_Date":"2019-02-23 15:58:12","id":"7"},{"Status":"Sent","Update_Date":"2019-02-23 16:01:08","Message":"AABBDDA5000001010100","Create_Date":"2019-02-23 15:58:08","id":"6"},{"Status":"Sent","Update_Date":"2019-02-23 16:01:08","Message":"AABBDDA4000001010100","Create_Date":"2019-02-23 15:57:58","id":"5"},{"Status":"Sent","Update_Date":"2019-02-23 16:01:07","Message":"AABBDDA6000001010100","Create_Date":"2019-02-23 15:56:02","id":"4"},{"Status":"Sent","Update_Date":"2019-02-23 16:01:07","Message":"AABBDDA5000001010100","Create_Date":"2019-02-23 15:55:54","id":"3"},{"Status":"Sent","Update_Date":"2019-02-23 16:00:43","Message":"AABBDDA4000001010100","Create_Date":"2019-02-23 15:55:26","id":"2"},{"Status":"Sent","Update_Date":"2019-02-23 00:00:00","Message":"test","Create_Date":"2019-02-23 00:00:00","id":"1"}],"Current_Slot":"1"}
 *******************************************************************************/
 %>
 
@@ -82,6 +75,7 @@ if (sResultCode.equals(gcResultCodeSuccess)){	//有資料
 	return;
 }
 
+//找出 slot 及 IMSI 資料
 
 String[] fields1 = {"Slot", "IMSI", "Status"};
 String[] fields2 = {"Slot", "IMSI", "Status"};
@@ -124,8 +118,8 @@ obj.put("resultText", sResultText);
 obj.put("imsis", l1);
 
 //找job紀錄
-String[] fields3 = {"DATE_FORMAT(Create_Date,'%Y-%m-%d %H:%i:%s')", "DATE_FORMAT(Update_Date,'%Y-%m-%d %H:%i:%s')", "Message", "Status"};
-String[] fields4 = {"Create_Date", "Update_Date", "Message", "Status"};
+String[] fields3 = {"id", "DATE_FORMAT(Create_Date,'%Y-%m-%d %H:%i:%s')", "DATE_FORMAT(Update_Date,'%Y-%m-%d %H:%i:%s')", "Message", "Status"};
+String[] fields4 = {"id", "Create_Date", "Update_Date", "Message", "Status"};
 
 sSQL = "SELECT " + fields3[0];
 for (i=1;i<fields3.length;i++){

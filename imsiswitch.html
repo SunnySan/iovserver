@@ -63,7 +63,7 @@
 		<div class="row">
 			<table>
 				<tr>
-					<td style="padding: 15px;"><label>Action: </label></td>
+					<td style="padding: 15px;"><label>Operation: </label></td>
 					<td style="padding: 15px;"><div>
 						<select id="selAction" name="selAction">
 							<option value="r">Reset</option>
@@ -107,7 +107,7 @@
             
 			<table id="tblJob" class="with-border footable" data-page-size="50" data-limit-navigation="5">
 				<thead>
-					<tr><th data-class="expand">Create Date</th><th>Update Date</th><th>Job Command</th><th>Status</th></tr>
+					<tr><th data-class="expand">Created Date</th><th>Updated Date</th><th>Job Command</th><th>Status</th><th>Action</th></tr>
 				</thead>
 				<tbody></tbody>
 				<tfoot>
@@ -221,6 +221,11 @@
 						s += "<td>" + r.Update_Date + "</td>";
 						s += "<td>" + r.Message + "</td>";
 						s += "<td>" + r.Status + "</td>";
+						if (notEmpty(r.Status) && r.Status=="Init"){
+							s += "<td>" + "<div><button type='button' onclick='doAction(\"" + r.id + "\")'>Cancel</button></div>" + "</td>";
+						}else{
+							s += "<td>" + "&nbsp;" + "</td>";
+						}
 						s += "</tr>";
 						$('#tblJob tbody').append(s);
 					});	//$.each( data.orders, function(i, r) {
@@ -235,32 +240,39 @@
 		});	//getDataFromServer("xxx.jsp", sData, "json", function(data){
 	}	//function doCheckStatus(){
 
-	function doAction(){
+	function doAction(myAction){
 		var sData = "";
 		var s = "";
 		var tmp = "";
+		var rid = "";
 		var masterId = $("#txtMasterId").val();
 		if (beEmpty(masterId)){
 			msgBox("Please enter Master ID!");
 			return;
 		}
-		var myAction = $("#selAction").val();
+		
 		if (beEmpty(myAction)){
-			msgBox("Please select an action!");
-			return;
+			myAction = $("#selAction").val();
+			if (beEmpty(myAction)){
+				msgBox("Please select an operation!");
+				return;
+			}
+		}else{
+			rid = myAction;
+			myAction = "c";
 		}
 
-		sData = "masterId=" + masterId + "&action=" + myAction;
+		sData = "masterId=" + masterId + "&action=" + myAction + "&rid=" + rid;
 		getDataFromServer("ajaxAddNewJob.jsp", sData, "json", function(data){
 			if (!data.resultCode || !data.resultText){
 				msgBox("Unable to get process result.");
 				return;
 			}else{
 				if (data.resultCode=="00000"){
-					msgBox("Your job has beed added to job queue!");
+					msgBox("Your job has been processed successfully!");
 					doCheckStatus();
 				}else{
-					msgBox("Failed to add your job:<br>" + data.resultText);
+					msgBox("Failed to process your job:<br>" + data.resultText);
 				}
 			}
 

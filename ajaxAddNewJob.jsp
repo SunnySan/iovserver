@@ -36,6 +36,7 @@ JSONObject	obj=new JSONObject();
 
 String masterId		= nullToString(request.getParameter("masterId"), "");
 String action		= nullToString(request.getParameter("action"), "");
+String rid			= nullToString(request.getParameter("rid"), "");
 if (beEmpty(masterId) || beEmpty(action)){
 	obj.put("resultCode", gcResultCodeParametersValidationError);
 	obj.put("resultText", gcResultTextParametersValidationError);
@@ -93,23 +94,41 @@ if (action.equals("r"))		sCommand = "AABBDDA4000001010100";
 if (action.equals("s"))		sCommand = "AABBDDA500" + sP2 + "01010100";
 if (action.equals("sr"))	sCommand = "AABBDDA600" + sP2 + "01010100";
 
-sSQL = "INSERT INTO bip_message_queue (Create_User, Create_Date, Update_User, Update_Date, Master_Id, Message, Status) VALUES (";
-sSQL += "'" + sUser + "',";
-sSQL += "'" + sDate + "',";
-sSQL += "'" + sUser + "',";
-sSQL += "'" + sDate + "',";
-sSQL += "'" + masterId + "',";
-sSQL += "'" + sCommand + "',";
-sSQL += "'" + "Init" + "'";
-sSQL += ")";
-sSQLList.add(sSQL);
-
-writeLog("debug", "Add new job:" + sSQL);
-
-ht = updateDBData(sSQLList, sSource, false);
-
-sResultCode = ht.get("ResultCode").toString();
-sResultText = ht.get("ResultText").toString();
+if (action.equals("c")){
+	if (notEmpty(rid)){
+		sSQL = "UPDATE bip_message_queue";
+		sSQL += " SET Update_User='" + sUser + "'";
+		sSQL += " ,Update_Date='" + sDate + "'";
+		sSQL += " ,Status='Canceled'";
+		sSQL += " WHERE id=" + rid;
+		sSQLList.add(sSQL);
+		
+		writeLog("debug", "Cancel job:" + sSQL);
+		
+		ht = updateDBData(sSQLList, sSource, false);
+		
+		sResultCode = ht.get("ResultCode").toString();
+		sResultText = ht.get("ResultText").toString();
+	}
+}else if (action.equals("r") || action.equals("s") || action.equals("sr")){
+	sSQL = "INSERT INTO bip_message_queue (Create_User, Create_Date, Update_User, Update_Date, Master_Id, Message, Status) VALUES (";
+	sSQL += "'" + sUser + "',";
+	sSQL += "'" + sDate + "',";
+	sSQL += "'" + sUser + "',";
+	sSQL += "'" + sDate + "',";
+	sSQL += "'" + masterId + "',";
+	sSQL += "'" + sCommand + "',";
+	sSQL += "'" + "Init" + "'";
+	sSQL += ")";
+	sSQLList.add(sSQL);
+	
+	writeLog("debug", "Add new job:" + sSQL);
+	
+	ht = updateDBData(sSQLList, sSource, false);
+	
+	sResultCode = ht.get("ResultCode").toString();
+	sResultText = ht.get("ResultText").toString();
+}
 
 obj.put("resultCode", sResultCode);
 obj.put("resultText", sResultText);
