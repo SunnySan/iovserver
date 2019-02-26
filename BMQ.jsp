@@ -4,6 +4,7 @@
 <%@page import="java.net.InetAddress" %>
 <%@page import="org.json.simple.JSONObject" %>
 <%@page import="java.util.*" %>
+<%@page import="java.util.Arrays" %>
 
 <%@include file="00_constants.jsp"%>
 <%@include file="00_utility.jsp"%>
@@ -133,7 +134,7 @@ if (!sResultCode.equals(gcResultCodeSuccess)){
 }
 
 if (sNewDevice.equals("1")){	//沒Master ID資料，直接回覆沒有queue job
-	writeLog("debug", "Response message= " + sResponse + "\n");
+	writeLog("debug", "New device, response message= " + sResponse + "\n");
 	out.print(sResponse);
 	return;
 }	//if (sNewDevice.equals("1")){	//沒Master ID資料，直接回覆沒有queue job
@@ -174,56 +175,37 @@ if (sResultCode.equals(gcResultCodeSuccess)){	//有資料
 	}
 }	//if (sResultCode.equals(gcResultCodeSuccess)){	//有資料
 
-
-
-
-
-
-
-
-/*
-String[] fields1 = {"DATE_FORMAT(Create_Date,'%Y-%m-%d %H:%i:%s')", "DATE_FORMAT(Update_Date,'%Y-%m-%d %H:%i:%s')", "User_Name", "UUID"};
-String[] fields2 = {"Create_Date", "Update_Date", "User_Name", "UUID"};
-
-sSQL = "SELECT " + fields1[0];
-for (i=1;i<fields1.length;i++){
-	sSQL += ", " + fields1[i]; 
-}
-sSQL += " FROM iot_device";
-sSQL += " ORDER BY Update_Date DESC LIMIT 200";
-
-ht = getDBData(sSQL, sSource);
-
-sResultCode = ht.get("ResultCode").toString();
-sResultText = ht.get("ResultText").toString();
-
-List  l1 = new LinkedList();
-Map m1 = null;
-
-if (sResultCode.equals(gcResultCodeSuccess)){	//有資料
-	s = (String[][])ht.get("Data");
-	for (i=0;i<s.length;i++){
-		m1 = new HashMap();
-		for (j=0;j<fields2.length;j++){
-			m1.put(fields2[j], nullToString(s[i][j], ""));
-		}
-		l1.add(m1);
-	}
-}else{
-	obj.put("resultCode", sResultCode);
-	obj.put("resultText", sResultText);
-	out.print(obj);
-	out.flush();
-	return;
-}
-
-obj.put("resultCode", sResultCode);
-obj.put("resultText", sResultText);
-obj.put("devices", l1);
-
-out.print(obj);
-*/
 writeLog("debug", "Response message= " + sResponse + "\n");
-out.print(sResponse);
+//out.print(hex2String(sResponse));
+OutputStream o = response.getOutputStream();
+o.write(hex2Byte(sResponse));
+o.close();
 //writeLog("debug", obj.toString());
+%>
+
+<%!
+//將 16 進位碼字串還原成原始文字
+public static String hex2String(String hexString) {
+	StringBuilder str = new StringBuilder();
+	for (int i=0 ; i<hexString.length() ; i+=2)
+		str.append((char) Integer.parseInt(hexString.substring(i, i + 2), 16));
+	return str.toString();
+}
+
+//取得 byte array 每個 byte 的 16 進位碼
+public static String byte2Hex(byte[] b) {
+	String result = "";
+	for (int i=0 ; i<b.length ; i++)
+		result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 );
+	return result;
+}
+
+//將 16 進位碼的字串轉為 byte array
+public static byte[] hex2Byte(String hexString) {
+	byte[] bytes = new byte[hexString.length() / 2];
+	for (int i=0 ; i<bytes.length ; i++)
+		bytes[i] = (byte) Integer.parseInt(hexString.substring(2 * i, 2 * i + 2), 16);
+	return bytes;
+}
+
 %>
