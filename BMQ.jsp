@@ -177,9 +177,13 @@ if (sResultCode.equals(gcResultCodeSuccess)){	//有資料
 
 writeLog("debug", "Response message= " + sResponse + "\n");
 //out.print(hex2String(sResponse));
-OutputStream o = response.getOutputStream();
-o.write(hex2Byte(sResponse));
-o.close();
+if (notEmpty(sResponse)){
+	OutputStream o = response.getOutputStream();
+	o.write(hex2Byte(sResponse));
+	o.close();
+}else{
+	out.print("no data");
+}
 //writeLog("debug", obj.toString());
 %>
 
