@@ -93,6 +93,7 @@ if (sResultCode.equals(gcResultCodeNoDataFound)){	//沒Master ID資料，建立�
 	sSQL = "UPDATE bip_device";
 	sSQL += " SET Update_User='" + sUser + "'";
 	sSQL += " ,Update_Date='" + sDate + "'";
+	sSQL += " ,Current_Slot='" + currentSlot + "'";
 	sSQL += " WHERE Master_Id='" + masterId + "'";
 	sSQLList.add(sSQL);
 }	//if (sResultCode.equals(gcResultCodeNoDataFound)){	//沒Master ID資料，建立一筆新的資料
