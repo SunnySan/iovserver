@@ -28,8 +28,6 @@ JSONObject obj=new JSONObject();
 https://www.call-pro.net/CallPro/Event_PCClientSendInstantNotification.jsp?areacode=02&phonenumber1=26585888&accesscode=123456&callerphone=0988123456&callername=hellokitty&callerdetail=great
 ************************************呼叫範例*******************************/
 
-String sOTAServerUrl = "http://sms.gslssd.com/smsChannel/infinite/sendMessage";
-
 String sMessage		= nullToString(request.getParameter("message"), "");		//發送訊息內容
 String sRecipient	= nullToString(request.getParameter("msisdn"), "");		//發送訊息內容
 
@@ -42,6 +40,10 @@ if (beEmpty(sMessage) || beEmpty(sRecipient)){
 	out.flush();
 	return;
 }
+
+String sSMSC = "infinite";
+if (sRecipient.startsWith("882")) sSMSC = "jt";
+String sOTAServerUrl = "http://sms.gslssd.com/smsChannel/" + sSMSC + "/sendMessage";
 
 Hashtable	ht					= new Hashtable();
 String		sResultCode			= gcResultCodeSuccess;
